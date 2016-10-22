@@ -1,0 +1,78 @@
+%YAML 1.2
+---
+# http://www.sublimetext.com/docs/3/syntax.html
+name: WoW Macro
+first_line_match: |-
+  (?x)
+  (VER)
+  (\s[0-9]\s[0-9A-F]+\s)
+  (\".+\"\s)
+  (\".+\")
+file_extensions:
+  - wow
+scope: wow.macro
+contexts:
+  main:
+    - match: END
+      scope: comment.block.wow
+    - match: |-
+        (?x)
+        (VER)
+        (\s[0-9]\s[0-9A-F]+\s)
+        (\".+\"\s)
+        (\".+\")
+      captures:
+        1: comment.block.wow
+        2: comment.block.wow
+        4: comment.block.wow
+    - match: (\/(run|script)\s)
+      captures:
+        1: keyword.operator.wow
+      push:
+        - meta_content_scope: source.lua.embedded.wow
+        - include: 'scope:source.lua'
+      with_prototype:
+        - match: \n
+          pop: true
+    - match: (\/[^ ]+)
+      captures:
+        1: keyword.operator.wow
+    - match: \[
+      push: param
+    - match: (#[A-Za-z_-]+)
+      captures:
+        1: comment.block.wow
+    - match: (\(.+\)|{.+})
+      captures:
+        1: variable.parameter.wow
+    - match: ([^ ;\(]+)
+      captures:
+        1: string.quoted.double.wow
+
+  param:
+    - match: \[
+      scope: invalid.illegal.nested-bracket
+    - match: \]
+      pop: true
+    - match: |-
+        (?x)
+        (([A-Za-z_-]+:?)|(@[^,\]]+))
+        ([A-Za-z0-9/_-]*)
+      captures:
+        2: punctuation.separator.key-value.wow
+        3: constant.numeric.wow
+        4: entity.name.wow 
+
+  condition:
+    - include: param
+    - match: ':'
+      pop: true
+      push: condition-argument
+
+  condition-argument:
+    - include: param
+    - meta_scope: variable.parameter.wow
+    - match: \/
+      scope: punctuation.separator.parameter.function.wow
+    - match: \,
+      pop: true
