@@ -10,7 +10,7 @@ first_line_match: |-
   (\".+\")
 file_extensions:
   - wow
-scope: wow.macro
+scope: source.wow-macro
 contexts:
   main:
     - match: END
